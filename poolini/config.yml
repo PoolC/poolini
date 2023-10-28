@@ -1,2 +1,8 @@
 poolini:
   discord_token: ${DISCORD_TOKEN}
+  debug: ${DEBUG}
+  bot_name: "풀린"
+  start_characters:
+    - "."
+    - "!"
+    - "/"
