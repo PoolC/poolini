@@ -7,7 +7,7 @@
 ## Run
 
 ```bash
-python server.py
+python -m poolini.main
 ```
 
 ## Develop

@@ -1,0 +1,2 @@
+poolini:
+  discord_token: ${DISCORD_TOKEN}
