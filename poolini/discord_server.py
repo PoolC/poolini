@@ -13,6 +13,7 @@ DISCORD_TOKEN = config["poolini"]["discord_token"]
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 client = discord.Client(intents=intents)
 
@@ -20,6 +21,13 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready() -> None:
     logger.info("Captain [%s] on duty!", client.user)
+
+
+@client.event
+async def on_member_join(member: discord.Member) -> None:
+    active_members_role_id = 1168076737150734416
+    active_members_role = discord.utils.get(client.guilds[0].roles, id=active_members_role_id)
+    await member.add_roles(active_members_role)  # type: ignore (pylance)
 
 
 @client.event
@@ -52,18 +60,17 @@ async def on_message(message) -> None:
 
 @client.event
 async def on_error(event, *args) -> None:
+    exc_type, exc_value, _ = sys.exc_info()
+    assert isinstance(exc_type, BaseException)
+
+    log_msg = f"{'.'.join([exc_type.__module__, exc_type.__name__])}: {exc_value}."
     if event == "on_message":
         message = args[0]
-        exc_type, exc_value, _ = sys.exc_info()
+        log_msg += f" (Author: {message.author} / Message: {message.content})"
+    else:
+        log_msg += f" (Msg: {args})"
 
-        assert isinstance(exc_type, BaseException)
-        logger.error(
-            '%s: %s. (Author: %s / Message: %s)',
-            ".".join([exc_type.__module__, exc_type.__name__]),
-            exc_value,
-            message.author,
-            message.content,
-        )
+    logger.error(log_msg)
 
 
 if __name__ == "__main__":
