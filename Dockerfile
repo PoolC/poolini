@@ -5,6 +5,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY poolini /app/
+COPY poolini poolini/
 
 CMD ["python", "-m", "poolini.discord_server"]
