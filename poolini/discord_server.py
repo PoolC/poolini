@@ -20,13 +20,17 @@ client = discord.Client(intents=intents)
 
 @client.event
 async def on_ready() -> None:
-    logger.info("Captain [%s] on duty!", client.user)
+    logger.info("[init] \"%s\" Captain on duty!", client.user)
 
 
 @client.event
 async def on_member_join(member: discord.Member) -> None:
     active_members_role_id = 1168076737150734416
     active_members_role = discord.utils.get(client.guilds[0].roles, id=active_members_role_id)
+
+    assert isinstance(active_members_role, discord.Role)
+    access_logger.info("[role] \"%s\" assigned role %s", active_members_role.name, member)
+
     await member.add_roles(active_members_role)  # type: ignore (pylance)
 
 
@@ -44,7 +48,7 @@ async def on_message(message) -> None:
     sys.stdout = io.StringIO()
 
     permissions = "user"
-    access_logger.info("[%s]: %s", message.author, message.content)
+    access_logger.info("[chat]: \"%s\" %s", message.author, message.content)
     poolini = cli_static_factory(permissions)
     args = message.content.split(" ")[1:]
     try:
@@ -63,12 +67,12 @@ async def on_error(event, *args) -> None:
     exc_type, exc_value, _ = sys.exc_info()
     assert isinstance(exc_type, BaseException)
 
-    log_msg = f"{'.'.join([exc_type.__module__, exc_type.__name__])}: {exc_value}."
+    log_msg = f"[error/{'.'.join([exc_type.__module__, exc_type.__name__])}] {exc_value}."
     if event == "on_message":
         message = args[0]
-        log_msg += f" (Author: {message.author} / Message: {message.content})"
+        log_msg += f" \"{message.author}\" {message.content}"
     else:
-        log_msg += f" (Msg: {args})"
+        log_msg += f" {args}"
 
     logger.error(log_msg)
 
