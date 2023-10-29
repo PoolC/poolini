@@ -3,9 +3,9 @@ import sys
 
 import discord
 
-from .cli.main import poolini
+from .cli.main import cli_static_factory
 from .config import config
-from .logger import logger
+from .logger import access_logger, logger
 
 BOT_NAME = config["poolini"]["bot_name"]
 START_CHARACTERS = config["poolini"]["start_characters"]
@@ -27,15 +27,17 @@ async def on_message(message) -> None:
     if message.author == client.user:
         return
 
-    # (".풀린 ", "!풀린 ", "/풀린 ")
-    # 끝에 의도적 띄어쓰기
-    start_characters_plus_bot_name = tuple(list(map(lambda c: f"{c}{BOT_NAME} ", START_CHARACTERS)))
+    # (".poolc", "!poolc", "/poolc")
+    start_characters_plus_bot_name = tuple(list(map(lambda c: f"{c}{BOT_NAME}", START_CHARACTERS)))
     if not message.content.startswith(start_characters_plus_bot_name):
         return
 
     original_stdout = sys.stdout
     sys.stdout = io.StringIO()
 
+    permissions = "user"
+    access_logger.info("[%s]: %s", message.author, message.content)
+    poolini = cli_static_factory(permissions)
     args = message.content.split(" ")[1:]
     try:
         poolini.main(args=args)
@@ -54,6 +56,7 @@ async def on_error(event, *args) -> None:
         message = args[0]
         exc_type, exc_value, _ = sys.exc_info()
 
+        assert isinstance(exc_type, BaseException)
         logger.error(
             '%s: %s. (Author: %s / Message: %s)',
             ".".join([exc_type.__module__, exc_type.__name__]),

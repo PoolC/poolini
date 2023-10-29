@@ -1,8 +1,13 @@
 poolini:
   discord_token: ${DISCORD_TOKEN}
   debug: ${DEBUG}
-  bot_name: "풀린"
+  bot_name: "poolc"
   start_characters:
     - "."
     - "!"
     - "/"
+
+poolc:
+  api:
+    base_url: "https://api.poolc.org"
+    admin_token: ${POOLC_API_ADMIN_TOKEN}
